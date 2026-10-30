@@ -54,6 +54,17 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+static uint8_t led_state = 0;
+
+static void LED_Show(uint8_t state)
+{
+  HAL_GPIO_WritePin(LED0_GPIO_Port, LED0_Pin, (state == 0) ? GPIO_PIN_SET : GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, (state == 1) ? GPIO_PIN_SET : GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, (state == 2) ? GPIO_PIN_SET : GPIO_PIN_RESET);
+
+
+}
+
 
 /* USER CODE END 0 */
 
@@ -87,39 +98,27 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   /* USER CODE BEGIN 2 */
-  GPIO_InitTypeDef LED_Init = {0};
-  LED_Init.Pin = GPIO_PIN_13;
-  LED_Init.Mode = GPIO_MODE_OUTPUT_PP;
-  LED_Init.Pull = GPIO_NOPULL;
-  LED_Init.Speed = GPIO_SPEED_FREQ_HIGH;
-  HAL_GPIO_Init(GPIOC, &LED_Init);
-  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_SET);
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_SET);
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, GPIO_PIN_SET);
+  LED_Show(0);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  uint32_t last_time = 0;
   while (1)
-  { HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-    HAL_Delay(50);
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_SET);
-    HAL_Delay(350);
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_RESET);
-    HAL_Delay(350);
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_SET);
-    HAL_Delay(350);
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_RESET);
-    HAL_Delay(350);
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, GPIO_PIN_SET);
-    HAL_Delay(350);
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, GPIO_PIN_RESET);
-    HAL_Delay(350);
+  {
+    uint32_t now = HAL_GetTick();      
+    if (now - last_time >= 500)
+    {
+      last_time = now;
+      led_state = (led_state + 1) % 3;
+      LED_Show(led_state);
+    }
+
 
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+
   }
   /* USER CODE END 3 */
 }
